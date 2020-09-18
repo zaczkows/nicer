@@ -1,3 +1,4 @@
+#[cfg(unix)]
 extern "C" {
-    pub fn nice(inc: i32) -> i32;
+    pub fn nice(inc: libc::c_int) -> libc::c_int;
 }

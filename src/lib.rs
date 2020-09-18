@@ -1,5 +1,5 @@
-use std::ffi::CString;
-
+mod platform;
+#[cfg(unix)]
 mod raw;
 
 const HELP_INFO: &str = r"
@@ -35,7 +35,7 @@ pub fn run() {
     let mut args = std::env::args();
     // First parameter is program name
     let name = args.next().unwrap();
-    let mut command: Vec<CString> = vec![];
+    let mut command: Vec<String> = vec![];
     let mut priority: i8 = 10;
     loop {
         let param = args.next();
@@ -79,21 +79,14 @@ pub fn run() {
                 }
             }
         } else {
-            command.push(CString::new(param).unwrap());
+            command.push(param);
         }
     }
 
     println!("self name: {}", &name);
     println!("command params: {:?}", &command);
-    let mut params: Vec<*const libc::c_char> =
-        command[..].iter().map(|item| item.as_ptr()).collect();
-    params.push(std::ptr::null());
-    let error = unsafe {
-        raw::nice(priority as i32);
-        libc::execvp(command[0].as_ptr(), params.as_ptr())
-    };
-    unsafe {
-        libc::perror(std::ptr::null());
+    platform::set_priority(priority);
+    if !platform::exec_cmd(&command) {
+        println!("something went wrong");
     }
-    println!("something went wrong: {}", error);
 }
