@@ -5,7 +5,7 @@ pub fn set_priority(priority: i8) {
     }
 }
 
-pub fn exec_cmd(cmd_params: &Vec<String>) -> bool {
+pub fn exec_cmd(cmd_params: &[String]) -> bool {
     use std::ffi::CString;
     // Need to keep the copy while working with pointers!
     let cparams: Vec<CString> = cmd_params
